@@ -2,19 +2,19 @@ const { Schema, model } = require("mongoose");
 
 const recipeSchema = new Schema(
   {
-    Name: {
+    name: {
       type: String,
       required: [true, "Name is required."],
     },
-    img: {
+    image: {
       type: String,
       required: false,
     },
-    Description: {
+    description: {
       type: String,
       required: [true, "Description is required."],
     },
-    Ingredients: [
+    ingredients: [
       {
         amount: {
           type: String,
@@ -26,7 +26,7 @@ const recipeSchema = new Schema(
         },
       },
     ],
-    Instruction: [
+    instruction: [
       {
         type: String,
         required: [true, "Instruction is required."],
@@ -40,7 +40,5 @@ const recipeSchema = new Schema(
 );
 
 const Recipe = model("Recipe", recipeSchema);
-
-module.exports = Recipe;
 
 module.exports = Recipe;
