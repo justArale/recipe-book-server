@@ -66,6 +66,7 @@ router.get("/user/:userId/recipes", (req, res) => {
   const userId = req.params.userId;
 
   Recipe.find({ user: userId })
+    .populate("author")
     .then((recipes) => {
       console.log(`Retrieved recipes for user ${userId} ->`, recipes);
       res.json(recipes);

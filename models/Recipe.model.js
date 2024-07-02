@@ -18,7 +18,6 @@ const recipeSchema = new Schema(
       {
         amount: {
           type: String,
-          required: [true, "Ingredient amount is required."],
         },
         name: {
           type: String,
@@ -32,7 +31,7 @@ const recipeSchema = new Schema(
         required: [true, "Instruction is required."],
       },
     ],
-    author: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    author: { type: Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true,
