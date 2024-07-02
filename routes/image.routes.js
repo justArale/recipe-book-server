@@ -6,73 +6,80 @@ const User = require("../models/User.model");
 const Recipe = require("../models/Recipe.model");
 
 // Route for uploading recipe image
+router.post(
+  "/upload-recipe-image",
+  isAuthenticated,
+  recipesUploader.single("file"),
+  async (req, res, next) => {
+    console.log("File upload request received");
+
+    if (!req.file) {
+      console.error("No file uploaded!");
+      return res.status(400).json({ error: "No file uploaded!" });
+    }
+
+    const newImageUrl = req.file.path;
+    const newPublicId = req.file.filename;
+    console.log("Uploaded file details:", req.file);
+
+    try {
+      // Log the incoming request body to verify its content
+      console.log("Request body:", req.body);
+
+      // Check if a recipe ID is provided
+      if (req.body.recipeId) {
+        // Find the recipe and get the old image publicId
+        const recipe = await Recipe.findById(req.body.recipeId);
+        if (!recipe) {
+          console.error("Recipe not found");
+          return res.status(404).json({ error: "Recipe not found" });
+        }
+
+        const oldPublicId = recipe.image;
+        console.log("oldPublicId", oldPublicId);
+
+        // Update the recipe with the new image
+        recipe.image = newPublicId;
+        await recipe.save();
+
+        // Delete the old image from Cloudinary, if it exists
+        if (oldPublicId) {
+          cloudinary.uploader.destroy(oldPublicId, (error, result) => {
+            if (error) {
+              console.error("Error deleting old image from Cloudinary:", error);
+            } else {
+              console.log("Old image deleted from Cloudinary:", result);
+            }
+          });
+        }
+
+        res.json({ fileUrl: newImageUrl });
+      } else {
+        // For new recipes, just return the new image URL
+        res.json({ fileUrl: newImageUrl });
+      }
+    } catch (error) {
+      console.error("Error updating recipe image:", error);
+      res.status(500).json({ error: "Failed to update the recipe image" });
+    }
+  }
+);
+
 // router.post(
 //   "/upload-recipe-image",
+//   isAuthenticated,
 //   recipesUploader.single("file"),
-//   async (req, res, next) => {
-//     console.log("File upload request received");
+//   (req, res, next) => {
+//     console.log("file is: ", req.file);
 
 //     if (!req.file) {
-//       console.error("No file uploaded!");
 //       next(new Error("No file uploaded!"));
 //       return;
 //     }
 
-//     const newImageUrl = req.file.path;
-//     const newPublicId = req.file.filename;
-//     console.log("Uploaded file details:", req.file);
-
-//     try {
-//       // Log the incoming request body to verify its content
-//       console.log("Request body:", req.body);
-
-//       // Check if a recipe ID is provided
-//       if (req.body.recipeId) {
-//         // Find the recipe and get the old image publicId
-//         const recipe = await Recipe.findById(req.body.recipeId);
-//         if (!recipe) {
-//           console.error("Recipe not found");
-//           return res.status(404).json({ error: "Recipe not found" });
-//         }
-
-//         const oldPublicId = recipe.image;
-
-//         // Update the recipe with the new image
-//         recipe.image = newPublicId;
-//         await recipe.save();
-
-//         // Delete the old image from Cloudinary, if it exists
-//         if (oldPublicId) {
-//           await cloudinary.uploader.destroy(oldPublicId);
-//           console.log("Old image deleted from Cloudinary");
-//         }
-
-//         res.json({ fileUrl: newImageUrl });
-//       } else {
-//         // For new recipes, just return the new image URL
-//         res.json({ fileUrl: newImageUrl });
-//       }
-//     } catch (error) {
-//       console.error("Error updating recipe image:", error);
-//       res.status(500).json({ error: "Failed to update the recipe image" });
-//     }
+//     res.json({ fileUrl: req.file.path });
 //   }
 // );
-
-router.post(
-  "/upload-recipe-image",
-  recipesUploader.single("file"),
-  (req, res, next) => {
-    console.log("file is: ", req.file);
-
-    if (!req.file) {
-      next(new Error("No file uploaded!"));
-      return;
-    }
-
-    res.json({ fileUrl: req.file.path });
-  }
-);
 
 // Route for uploading avatar image
 router.post(
