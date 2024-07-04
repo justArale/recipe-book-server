@@ -12,7 +12,7 @@ cloudinary.config({
 const recipeStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    allowed_formats: ["jpg", "png", "webm", "jpeg", "gif", "heic"],
+    allowed_formats: ["jpg", "png", "webm", "jpeg", "gif", "heic", "webp"],
     folder: "RecipeBook/recipe-image", // The name of the folder in cloudinary for poll options
     //resource_type: "raw", // This is in case you want to upload other types of files, not just images
   },
@@ -21,7 +21,7 @@ const recipeStorage = new CloudinaryStorage({
 const avatarStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    allowed_formats: ["jpg", "png", "webm", "jpeg", "gif", "heic"],
+    allowed_formats: ["jpg", "png", "webm", "jpeg", "gif", "heic", "webp"],
     folder: "RecipeBook/avatar", // The name of the folder in cloudinary for avatars
     // resource_type: "raw", // This is in case you want to upload other types of files, not just images
   },
