@@ -6,7 +6,6 @@ const User = require("../models/User.model");
 const Recipe = require("../models/Recipe.model");
 
 // Route for uploading recipe image
-
 router.post(
   "/upload-recipe-image",
   isAuthenticated,
@@ -47,17 +46,10 @@ router.delete(
     const { publicId, recipeId } = req.params;
 
     try {
-      // Löschen des Bildes aus Cloudinary
-      const result = await cloudinary.uploader.destroy(
-        `RecipeBook/recipe-image/${publicId}`
-      );
-      if (result.result !== "ok") {
-        return res
-          .status(500)
-          .json({ error: "Failed to delete the image from Cloudinary" });
-      }
+      // Delete image from cloudinary
+      await cloudinary.uploader.destroy(`RecipeBook/recipe-image/${publicId}`);
 
-      // Aktualisieren des Rezeptdokuments in der Datenbank, um die Referenz auf das Bild zu entfernen
+      // Update the user document in the database to remove the reference to the avatar
       const updatedRecipe = await Recipe.findByIdAndUpdate(
         recipeId,
         { image: "" },
@@ -84,6 +76,7 @@ router.delete(
     const { publicId } = req.params;
 
     try {
+      // Delete image from cloudinary
       await cloudinary.uploader.destroy(`RecipeBook/avatar/${publicId}`);
 
       // Update the user document in the database to remove the reference to the avatar
@@ -92,6 +85,10 @@ router.delete(
         { avatar: "" },
         { new: true }
       );
+
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
       res.status(200).json({ message: "Avatar image deleted", updatedUser });
     } catch (error) {
